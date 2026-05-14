@@ -1,10 +1,13 @@
 package com.example.spring_security.config;
 
+import com.example.spring_security.enums.Permission;
+import com.example.spring_security.enums.Role;
 import com.example.spring_security.filters.JwtAuthFilter;
 import com.example.spring_security.service.CustomUserDetailsService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.http.HttpMethod;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.ProviderManager;
 import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
@@ -31,7 +34,9 @@ public class SecurityConfig {
         http.csrf(AbstractHttpConfigurer::disable)
                 .authorizeHttpRequests(auth->
                         auth.requestMatchers("/api/auth/**","/error").permitAll()
-                                .requestMatchers("/api/user/**","/error").hasRole("ADMIN")
+                                .requestMatchers(HttpMethod.GET, "/api/user/**").hasAllAuthorities(Permission.USER_READ.name())
+                                .requestMatchers(HttpMethod.POST, "/api/user/**").hasAllAuthorities(Permission.USER_WRITE.name())
+                                .requestMatchers(HttpMethod.DELETE, "/api/user/**").hasAllAuthorities(Permission.USER_DELETE.name())
                                 .anyRequest().authenticated())
                 .httpBasic(withDefaults());
         http.addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter.class);

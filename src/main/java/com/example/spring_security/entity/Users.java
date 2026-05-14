@@ -1,9 +1,7 @@
 package com.example.spring_security.entity;
 
-import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
+import com.example.spring_security.enums.Role;
+import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
 import org.springframework.security.core.GrantedAuthority;
@@ -11,7 +9,10 @@ import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
 import java.util.Collection;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 @Entity
 @Getter
@@ -22,11 +23,35 @@ public class Users implements UserDetails {
     private Long id;
     private String username;
     private String password;
-    private String role;
+
+    @Enumerated(EnumType.STRING)
+    private Role role;
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
-        return List.of(new SimpleGrantedAuthority(role));
+        Set<SimpleGrantedAuthority> authorities = new HashSet<>();
+        
+        authorities.add(new SimpleGrantedAuthority("ROLE_" + role.name()));
+        Set<SimpleGrantedAuthority> permissionAuthorities = role.getPermissions().stream()
+                .map(permission -> new SimpleGrantedAuthority(permission.name()))
+                .collect(Collectors.toSet());
+        authorities.addAll(permissionAuthorities);
+
+//        //ADMIN
+//        [
+//          { "authority": "ROLE_ADMIN" },
+//          { "authority": "USER_READ" },
+//          { "authority": "USER_WRITE" },
+//          { "authority": "USER_DELETE" }
+//        ]
+//
+//        //User
+//        [
+//          { "authority": "ROLE_USER" },
+//          { "authority": "USER_READ" }
+//        ]
+
+        return authorities;
     }
 
     @Override
