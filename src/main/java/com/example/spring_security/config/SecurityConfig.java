@@ -35,7 +35,7 @@ public class SecurityConfig {
     public SecurityFilterChain filterChain(HttpSecurity http){
         http.csrf(AbstractHttpConfigurer::disable)
                 .authorizeHttpRequests(auth->
-                        auth.requestMatchers("/api/auth/**","/error").permitAll()
+                        auth.requestMatchers("/api/auth/**","/api/user/**","/error").permitAll()
 //                                .requestMatchers(HttpMethod.GET, "/api/user/**").hasAllAuthorities(Permission.USER_READ.name())
 //                                .requestMatchers(HttpMethod.POST, "/api/user/**").hasAllAuthorities(Permission.USER_WRITE.name())
 //                                .requestMatchers(HttpMethod.DELETE, "/api/user/**").hasAllAuthorities(Permission.USER_DELETE.name())

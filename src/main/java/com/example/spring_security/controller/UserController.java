@@ -1,37 +1,39 @@
 package com.example.spring_security.controller;
 
-import com.example.spring_security.entity.Users;
-import com.example.spring_security.repository.UserDetailsRepository;
-import org.springframework.beans.factory.annotation.Autowired;
+import com.example.spring_security.dto.request.RegisterUserRequest;
+import com.example.spring_security.dto.response.RegisterUserResponse;
+import com.example.spring_security.enums.Role;
+import com.example.spring_security.service.UserService;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.access.prepost.PostAuthorize;
 import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
 
 @RestController
 @RequestMapping("/api/user")
 public class UserController {
 
-    @Autowired
-    UserDetailsRepository userDetailsRepository;
+    private final UserService userService;
 
-    @PreAuthorize("hasAuthority('USER_READ')")
-    @GetMapping("/find")
-    public ResponseEntity<String> getUser(){
-        return ResponseEntity.ok("Hello World");
+
+    public UserController(UserService userService) {
+        this.userService = userService;
+    }
+
+    @PostMapping("/register")
+    public ResponseEntity<RegisterUserResponse> registerUser(@RequestBody RegisterUserRequest registerUserRequest){
+        registerUserRequest.setRole(Role.USER);
+        RegisterUserResponse userResponse = userService.registerUser(registerUserRequest);
+        return ResponseEntity.ok(userResponse);
     }
 
     @PreAuthorize("hasAuthority('USER_WRITE')")
-    @PostMapping("/say-name")
-    public ResponseEntity<String> SayName(@RequestBody String name){
-        return ResponseEntity.ok(name);
+    @PostMapping("/admin/register")
+    public ResponseEntity<RegisterUserResponse> registerUserByAdmin(@RequestBody RegisterUserRequest registerUserRequest){
+        RegisterUserResponse userResponse = userService.registerUser(registerUserRequest);
+        return ResponseEntity.ok(userResponse);
     }
 
-
-    @PostAuthorize("returnObject.username == authentication.name")
-    @PostMapping("/check-me/{id}")
-    public Users getMe(@PathVariable Long id){
-        return userDetailsRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Log not found"));
-    }
 }
