@@ -1,6 +1,7 @@
 package com.example.spring_security.repository;
 
 import com.example.spring_security.entity.Users;
+import org.apache.catalina.User;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
@@ -10,5 +11,7 @@ import java.util.Optional;
 public interface UserDetailsRepository extends JpaRepository<Users,Long> {
 
     Optional<Users> findByUsername(String username);
+
+    Optional<Users> findById(Long id);
 
 }
